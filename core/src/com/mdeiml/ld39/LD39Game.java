@@ -10,6 +10,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import java.util.ArrayList;
 
@@ -35,11 +39,26 @@ public class LD39Game extends ApplicationAdapter {
 
 		Box2D.init();
 		world = new World(new Vector2(0, 0), true);
+		world.setContactListener(new ContactListener() {
+			public void beginContact(Contact contact) {
+				Entity a = (Entity)contact.getFixtureA().getBody().getUserData();
+				Entity b = (Entity)contact.getFixtureB().getBody().getUserData();
+				a.addTouchingEntity(b);
+				b.addTouchingEntity(a);
+			}
+			public void endContact(Contact contact) {
+				Entity a = (Entity)contact.getFixtureA().getBody().getUserData();
+				Entity b = (Entity)contact.getFixtureB().getBody().getUserData();
+				a.removeTouchingEntity(b);
+				b.removeTouchingEntity(a);
+			}
+			public void postSolve(Contact contact, ContactImpulse impulse) {}
+			public void preSolve(Contact contact, Manifold manifold) {}
+		});
 		debugRenderer = new Box2DDebugRenderer();
 
 		Texture testTex = new Texture("badlogic.jpg");
-		Robot player = new Robot(new Vector2(0,0), world, new TextureRegion(testTex));
-		entities.add(player);
+		Robot player = new Robot(new Vector2(0,0), this, new TextureRegion(testTex));
 	}
 
 	@Override
@@ -52,6 +71,7 @@ public class LD39Game extends ApplicationAdapter {
 			}
 			for(int i = 0; i < entities.size(); i++) {
 				if(entities.get(i).isDead()) {
+					world.destroyBody(entities.get(i).getBody());
 					entities.remove(i);
 					i--;
 				}
@@ -67,9 +87,30 @@ public class LD39Game extends ApplicationAdapter {
 		debugRenderer.render(world, camera.combined);
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		for(int i = 0; i < entities.size(); i++) {
+		for(int i = entities.size()-1; i >= 0; i--) {
 			entities.get(i).render(batch);
 		}
 		batch.end();
 	}
+
+	public World getWorld() {
+		return world;
+	}
+
+	public void addEntity(Entity e) {
+		entities.add(e);
+	}
+
+	public void wakeAll() {
+		for(Entity e : entities) {
+			e.getBody().setAwake(true);
+		}
+	}
+
+	public Vector2 getMousePos() {
+		Vector2 pos = new Vector2(Gdx.input.getX()-Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2-Gdx.input.getY());
+		pos.scl(1/TILE_SIZE);
+		return pos;
+	}
+
 }
