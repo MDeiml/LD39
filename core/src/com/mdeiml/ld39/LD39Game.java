@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -53,12 +54,20 @@ public class LD39Game extends ApplicationAdapter {
 				b.removeTouchingEntity(a);
 			}
 			public void postSolve(Contact contact, ContactImpulse impulse) {}
-			public void preSolve(Contact contact, Manifold manifold) {}
+			public void preSolve(Contact contact, Manifold manifold) {
+				if(!contact.getFixtureA().isSensor() && !contact.getFixtureB().isSensor() &&
+				   contact.getFixtureA().getBody().getType() == BodyDef.BodyType.DynamicBody &&
+				   contact.getFixtureB().getBody().getType() == BodyDef.BodyType.DynamicBody) {
+					contact.getFixtureA().getBody().setLinearVelocity(new Vector2(0,0));
+					contact.getFixtureB().getBody().setLinearVelocity(new Vector2(0,0));
+				}
+			}
 		});
 		debugRenderer = new Box2DDebugRenderer();
 
 		Texture testTex = new Texture("badlogic.jpg");
 		Robot player = new Robot(new Vector2(0,0), this, new TextureRegion(testTex));
+		new Enemy(new Vector2(-3, 0), new Vector2(1, 1), this, new TextureRegion(testTex), 2);
 	}
 
 	@Override
@@ -66,7 +75,8 @@ public class LD39Game extends ApplicationAdapter {
 		// Update
 		unprocessed += Gdx.graphics.getDeltaTime();
 		while(unprocessed >= UPDATE_DELTA) {
-			for(int i = 0; i < entities.size(); i++) {
+			int size = entities.size();
+			for(int i = 0; i < size; i++) {
 				entities.get(i).update();
 			}
 			for(int i = 0; i < entities.size(); i++) {

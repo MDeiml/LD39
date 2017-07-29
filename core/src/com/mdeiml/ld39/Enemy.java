@@ -1,17 +1,18 @@
 package com.mdeiml.ld39;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 
 public class Enemy extends Entity {
 
-    private final float maxHealth;
-    private float health;
+    private final int maxHealth;
+    private int health;
 
-    public Enemy(Vector2 position, Vector2 size, LD39Game game, TextureRegion sprite, float maxHealth) {
+    public Enemy(Vector2 position, Vector2 size, LD39Game game, TextureRegion sprite, int maxHealth) {
         super(position, size, game, sprite);
         this.maxHealth = maxHealth;
         this.health = maxHealth;
+        getBody().setLinearDamping(15);
     }
 
     public void update() {
@@ -20,6 +21,10 @@ public class Enemy extends Entity {
             die();
         }
         super.update();
+    }
+
+    public void damage(int d) {
+        health -= d;
     }
 
 }

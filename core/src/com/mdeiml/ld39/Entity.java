@@ -91,13 +91,23 @@ public abstract class Entity {
         while(touchingEntities.remove(e)) {}
     }
 
-    public Entity isTouching(Class<? extends Entity> type) {
+    public <T extends Entity> T isTouching(Class<T> type) {
         for(Entity e : touchingEntities) {
-            if(e.getClass().equals(type)) {
-                return e;
+            if(type.isAssignableFrom(e.getClass())) {
+                return (T)e;
             }
         }
         return null;
+    }
+
+    public <T extends Entity> ArrayList<T> isTouchingAll(Class<T> type) {
+        ArrayList<T> res = new ArrayList<T>();
+        for(Entity e : touchingEntities) {
+            if(type.isAssignableFrom(e.getClass())) {
+                res.add((T)e);
+            }
+        }
+        return res;
     }
 
 }

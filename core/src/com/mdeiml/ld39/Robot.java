@@ -1,10 +1,14 @@
 package com.mdeiml.ld39;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import static com.badlogic.gdx.Input.Keys;
+import static com.badlogic.gdx.Input.Buttons;
+import java.util.ArrayList;
 
 public class Robot extends Enemy {
 
@@ -18,8 +22,11 @@ public class Robot extends Enemy {
     private static final float DASH_DURATION = 0.20f;
     private static final float DASH_STOP = 0.05f;
 
+    private static final float HIT_COST = 10;
+    private static final int HIT_DAMAGE = 1;
+
     private static final float ENERGY_MAX = 100;
-    private static final float HEALTH_MAX = 100;
+    private static final int HEALTH_MAX = 5;
     private static final float ENERGY_DECAY = 8;
 
     private float energy;
@@ -32,6 +39,9 @@ public class Robot extends Enemy {
         this.hasBattery = true;
         this.dashTimer = 0;
     }
+
+    // Gdx not supporting isButtonJustPressed
+    private boolean lastLeft = false;
 
     public void update() {
         // Movement
@@ -68,6 +78,11 @@ public class Robot extends Enemy {
                     getBody().setLinearVelocity(vel.scl(speed/l));
                 }
             }
+            if(Gdx.input.isButtonPressed(Buttons.LEFT) && !lastLeft && !hasBattery) {
+                Vector2 hitDir = getGame().getMousePos().sub(getPosition()).nor();
+                new Hit(getPosition().add(hitDir.scl(0.5f)), HIT_DAMAGE);
+                energy -= HIT_COST;
+            }
         }else {
             if(dashTimer < DASH_STOP) {
                 getBody().setLinearDamping(STOP_DAMP);
@@ -98,7 +113,29 @@ public class Robot extends Enemy {
         if(energy <= 0) {
             die();
         }
+        lastLeft = Gdx.input.isButtonPressed(Buttons.LEFT);
         super.update();
     }
+
+	private class Hit extends Entity {
+
+        private int damage;
+
+		public Hit(Vector2 pos, int damage) {
+			super(pos, new Vector2(1,1), Robot.this.getGame(), new TextureRegion(new Texture("badlogic.jpg")), BodyDef.BodyType.StaticBody, true);
+            this.damage = damage;
+		}
+
+        public void update() {
+            ArrayList<Enemy> touchingEnemies = isTouchingAll(Enemy.class);
+            for(Enemy e : touchingEnemies) {
+                if(e != Robot.this) {
+                    e.damage(damage);
+                }
+            }
+            die();
+        }
+
+	}
 
 }
