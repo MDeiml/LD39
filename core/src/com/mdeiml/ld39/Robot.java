@@ -2,15 +2,16 @@ package com.mdeiml.ld39;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import static com.badlogic.gdx.Input.Keys;
-import static com.badlogic.gdx.Input.Buttons;
 import java.util.ArrayList;
+import static com.badlogic.gdx.Input.Buttons;
+import static com.badlogic.gdx.Input.Keys;
 
-public class Robot extends Enemy {
+public class Robot extends LivingEntity {
 
     private static final float SPEED = 4;
     private static final float SPEED_BATTERY = 2;
@@ -32,9 +33,20 @@ public class Robot extends Enemy {
     private float energy;
     private boolean hasBattery;
     private float dashTimer;
+    private Animation animation;
+    private Animation animationBattery;
+    private float animationTimer;
 
     public Robot(Vector2 position, LD39Game game, TextureRegion sprite) {
-        super(position, new Vector2(1, 1), game, sprite, HEALTH_MAX);
+        super(position, new Vector2(1, 1), game, new TextureRegion(game.sprites, 0, 0, 16, 16), HEALTH_MAX);
+        animation = new Animation(1, new TextureRegion[] {
+            new TextureRegion(game.sprites, 0, 0, 16, 16),
+            new TextureRegion(game.sprites, 16, 0, 16, 16)
+        });
+        animationBattery = new Animation(1, new TextureRegion[] {
+            new TextureRegion(game.sprites, 0, 16, 16, 16),
+            new TextureRegion(game.sprites, 16, 16, 16, 16)
+        });
         this.energy = ENERGY_MAX;
         this.hasBattery = true;
         this.dashTimer = 0;
@@ -117,6 +129,13 @@ public class Robot extends Enemy {
         super.update();
     }
 
+    public void render(SpriteBatch batch) {
+        animationTimer += Gdx.graphics.getDeltaTime();
+        Animation a = hasBattery ? animationBattery : animation;
+        setSprite(a.getKeyFrame(animationTimer, true));
+        super.render(batch);
+    }
+
 	private class Hit extends Entity {
 
         private int damage;
@@ -127,8 +146,8 @@ public class Robot extends Enemy {
 		}
 
         public void update() {
-            ArrayList<Enemy> touchingEnemies = isTouchingAll(Enemy.class);
-            for(Enemy e : touchingEnemies) {
+            ArrayList<LivingEntity> touchingEnemies = isTouchingAll(LivingEntity.class);
+            for(LivingEntity e : touchingEnemies) {
                 if(e != Robot.this) {
                     e.damage(damage);
                 }

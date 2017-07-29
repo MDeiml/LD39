@@ -20,17 +20,19 @@ import java.util.ArrayList;
 
 public class LD39Game extends ApplicationAdapter {
 
-	public static final float TILE_SIZE = 32;
+	public static final float TILE_SIZE = 64;
 	public static final float UPDATE_DELTA = 1/60f;
 
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	private ArrayList<Entity> entities;
+	private Robot player;
 
 	// Box2d
 	private float unprocessed;
 	private World world;
 	private Box2DDebugRenderer debugRenderer;
+	public Texture sprites;
 
 	@Override
 	public void create () {
@@ -65,9 +67,11 @@ public class LD39Game extends ApplicationAdapter {
 		});
 		debugRenderer = new Box2DDebugRenderer();
 
+		sprites = new Texture("sprites.png");
+
 		Texture testTex = new Texture("badlogic.jpg");
-		Robot player = new Robot(new Vector2(0,0), this, new TextureRegion(testTex));
-		new Enemy(new Vector2(-3, 0), new Vector2(1, 1), this, new TextureRegion(testTex), 2);
+		player = new Robot(new Vector2(0,0), this, new TextureRegion(testTex));
+		new StandardEnemy(new Vector2(-3, 0), this);
 	}
 
 	@Override
@@ -91,7 +95,7 @@ public class LD39Game extends ApplicationAdapter {
 		}
 
 		// Render
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
 		debugRenderer.render(world, camera.combined);
@@ -121,6 +125,10 @@ public class LD39Game extends ApplicationAdapter {
 		Vector2 pos = new Vector2(Gdx.input.getX()-Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2-Gdx.input.getY());
 		pos.scl(1/TILE_SIZE);
 		return pos;
+	}
+
+	public Robot getPlayer() {
+		return player;
 	}
 
 }

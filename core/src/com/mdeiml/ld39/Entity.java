@@ -110,4 +110,12 @@ public abstract class Entity {
         return res;
     }
 
+    public TextureRegion getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(TextureRegion sprite) {
+        this.sprite = sprite;
+    }
+
 }
