@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import static com.badlogic.gdx.Input.Keys;
 
-public class Robot extends Entity {
+public class Robot extends Enemy {
 
     private static final float SPEED = 4;
     private static final float SPEED_BATTERY = 2;
@@ -23,14 +23,12 @@ public class Robot extends Entity {
     private static final float ENERGY_DECAY = 8;
 
     private float energy;
-    private float health;
     private boolean hasBattery;
     private float dashTimer;
 
     public Robot(Vector2 position, LD39Game game, TextureRegion sprite) {
-        super(position, new Vector2(1, 1), game, sprite);
+        super(position, new Vector2(1, 1), game, sprite, HEALTH_MAX);
         this.energy = ENERGY_MAX;
-        this.health = HEALTH_MAX;
         this.hasBattery = true;
         this.dashTimer = 0;
     }
@@ -95,12 +93,12 @@ public class Robot extends Entity {
         }else {
             energy -= LD39Game.UPDATE_DELTA * ENERGY_DECAY;
         }
-        health = Math.min(HEALTH_MAX, health);
         energy = Math.min(ENERGY_MAX, energy);
         System.out.println(energy);
-        if(energy <= 0 || health <= 0) {
+        if(energy <= 0) {
             die();
         }
+        super.update();
     }
 
 }
