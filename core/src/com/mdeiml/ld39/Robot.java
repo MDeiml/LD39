@@ -39,7 +39,7 @@ public class Robot extends LivingEntity {
 
     public Robot(Vector2 position, LD39Game game, TextureRegion sprite) {
         super(position, new Vector2(1, 1), game, new TextureRegion(game.sprites, 0, 0, 16, 16), HEALTH_MAX);
-        animation = new Animation(1, new TextureRegion[] {
+        this.animation = new Animation(1, new TextureRegion[] {
             new TextureRegion(game.sprites, 0, 0, 16, 16),
             new TextureRegion(game.sprites, 16, 0, 16, 16)
         });
@@ -156,5 +156,9 @@ public class Robot extends LivingEntity {
         }
 
 	}
+
+    public float getEnergy() {
+        return energy;
+    }
 
 }

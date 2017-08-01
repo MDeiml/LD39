@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class LD39Game extends ApplicationAdapter {
 
-	public static final float TILE_SIZE = 64;
+	public static final float TILE_SIZE = 48;
 	public static final float UPDATE_DELTA = 1/60f;
 
 	private SpriteBatch batch;
@@ -33,6 +33,8 @@ public class LD39Game extends ApplicationAdapter {
 	private World world;
 	private Box2DDebugRenderer debugRenderer;
 	public Texture sprites;
+    private TextureRegion batteryFull;
+    private TextureRegion batteryEmpty;
 
 	@Override
 	public void create () {
@@ -68,6 +70,8 @@ public class LD39Game extends ApplicationAdapter {
 		debugRenderer = new Box2DDebugRenderer();
 
 		sprites = new Texture("sprites.png");
+        batteryFull = new TextureRegion(sprites, 32, 0, 6, 64);
+        batteryEmpty = new TextureRegion(sprites, 38, 0, 6, 64);
 
 		Texture testTex = new Texture("badlogic.jpg");
 		player = new Robot(new Vector2(0,0), this, new TextureRegion(testTex));
@@ -104,6 +108,16 @@ public class LD39Game extends ApplicationAdapter {
 		for(int i = entities.size()-1; i >= 0; i--) {
 			entities.get(i).render(batch);
 		}
+		batch.draw(batteryEmpty, 0.5f-Gdx.graphics.getWidth()/TILE_SIZE/2, 1-Gdx.graphics.getHeight()/TILE_SIZE/2, 6/16f, 64/16f);
+		float energy = player.getEnergy()/100;
+		int batHeight = (int)(energy * batteryFull.getRegionHeight());
+		batch.draw(
+			new TextureRegion(batteryFull, 0, batteryFull.getRegionHeight()-batHeight, 6, batHeight),
+			0.5f-Gdx.graphics.getWidth()/TILE_SIZE/2,
+			1-Gdx.graphics.getHeight()/TILE_SIZE/2,
+			6/16f,
+			batHeight/16f
+		);
 		batch.end();
 	}
 

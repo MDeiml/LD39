@@ -61,3 +61,7 @@ build/
 
 ## OS Specific
 .DS_Store
+
+## VS Code
+.vscode
+*.classpath
