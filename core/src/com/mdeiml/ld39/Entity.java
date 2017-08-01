@@ -7,7 +7,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
 import java.util.ArrayList;
 
 public abstract class Entity {
@@ -91,6 +90,7 @@ public abstract class Entity {
         while(touchingEntities.remove(e)) {}
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Entity> T isTouching(Class<T> type) {
         for(Entity e : touchingEntities) {
             if(type.isAssignableFrom(e.getClass())) {
@@ -100,6 +100,7 @@ public abstract class Entity {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Entity> ArrayList<T> isTouchingAll(Class<T> type) {
         ArrayList<T> res = new ArrayList<T>();
         for(Entity e : touchingEntities) {
